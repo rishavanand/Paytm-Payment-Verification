@@ -6,10 +6,11 @@ $postData = array(
   'user' => $_POST[email], //gmail username
   'pass' => $_POST[pass], // gmail password
   'id' => $_POST[id],
+  'key' => $_POST[key], //api key
 );
   
 $ch = curl_init();
-curl_setopt($ch, CURLOPT_URL, "http://yourdomain.com/paytome.php"); 
+curl_setopt($ch, CURLOPT_URL, "http://yourdomain.com/paytmportal.php"); 
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 curl_setopt($ch, CURLOPT_POST, 1);
 curl_setopt($ch, CURLOPT_POSTFIELDS, $postData);
@@ -28,6 +29,7 @@ echo $json[status];
 <form action="" method="post">
   <input type="email" name="email">
   <input type="pass" name="pass">
-  <input type="text" name="id">  
+  <input type="text" name="id">
+  <input type="text" name="key">
   <input type="submit"> 
 </form> 
