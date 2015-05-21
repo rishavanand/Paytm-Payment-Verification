@@ -1,11 +1,16 @@
 <?php
 
+$username = $_POST[user]; // or set your username here : $username = "USERNAME";
+$password = $_POST[pass]; // or set your password here : $password = "PASSWORD";
+$api = "YOUR-SECRET-API"; // set your api key here
+
+if(isset($_POST[key]) && $_POST[key]==$api){
+  
+$transid = $_POST[id];
+
 // Connect to gmail
 
 $imapPath = '{imap.gmail.com:993/imap/ssl}INBOX';
-$username = $_POST[user];
-$password = $_POST[pass];
-$transid = $_POST[id];
 
 function get_string_between($string, $start, $end)
   {
@@ -108,5 +113,5 @@ if (!isset($arr_result))
   );
   echo json_encode($notfound);
   }
-
+}
 ?>
