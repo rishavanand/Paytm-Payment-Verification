@@ -4,8 +4,15 @@ Paytm has its own official api but to get acces to the api users need to have tr
 
 ## How does it work ?
 
-It works on email sent via Paytm to your gmail account via IMAP.
-It reads those emails and gets the transaction id , amount , and date and then makes an array out of it. It then takes in transacion id from you and checks it from the array. In a way it uses gmail as a database.
+1. A user wants to make a payment on your site.
+2. You ask the user to send a money to your Paytm Wallet. (which is linked to your Gmail account)
+3. After the user sends the amount to your wallet, the user and you receive an email from Paytm with the transaction id.
+4. The user is asked to enter the transation id on your site.
+5. The script takes the transaction id > then reads your email from Paytm > looks for the specific transaction id and then displays the details of the transaction.
+
+You can now use this information to proceed with the transaction. 
+Eg : if(transaction id and amount is correct)
+else {output "Please try again"}
 
 ## So these two points are very important :
 
@@ -55,3 +62,7 @@ date - Date and time of transact
 
 ## NOTE :
 Do not delete any emails from paytm from your gmail account.
+
+## Features that can be added as per your convinience.
+
+1. Storing the transaction id in your database to prevent multiple usage of a single transaction id. 
