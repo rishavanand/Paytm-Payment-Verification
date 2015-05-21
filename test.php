@@ -24,6 +24,8 @@ echo $json[status];
   
    elseif($status=="valid"){echo "Could Not process your payment";} }
   
+else {echo "Invalid API";}  
+  
 ?>
 
 <form action="" method="post">
