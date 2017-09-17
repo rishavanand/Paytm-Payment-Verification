@@ -1,68 +1,18 @@
-# Paytm Payment Gateway (PHP)
+# Paytm Payment Verification (PHP)
 
-Paytm has its own official api but to get acces to the api users need to have transactions of atleast Rs.10,000 / mo. To break this restriction here is a light PHP script that will help users to accept payments via Paytm on their sites even if they dont have monthly transactions of Rs.10,000 thus becoming a perfect payment gateway for small businesses.
+This script allows user registration only only for people with valid PayTM Transaction ID. While registration the PayTM transaction ID and payment amount is matched so allow user registattion.
 
 ## How does it work ?
 
-1. A user wants to make a payment on your site.
-2. You ask the user to send a money to your Paytm Wallet. (which is linked to your Gmail account)
-3. After the user sends the amount to your wallet, the user and you receive an email from Paytm with the transaction id.
-4. The user is asked to enter the transation id on your site.
-5. The script takes the transaction id > then reads your email from Paytm > looks for the specific transaction id and then displays the details of the transaction.
+When a transaction is made both the sender and the receiver receives an email which has the same transaction id. This script takes the transaction id from the participant and verifies it from the receiver's inbox. If the amount and transaction id matches the user's name and registration number gets registered in the database.
 
-You can now use this information to proceed with the transaction. 
-Eg : if(transaction id and amount is correct)
-else {output "Please try again"}
+## Information to be added by you in the script ?
+1. Gmail credentials
+2. Database details
+3. The amount that the user must have paid to register
 
-## So these two points are very important :
+## Important points :
 
-1. Your paytm account should be setup with Gmail only.
-2. Do not delete any mails from paytm.
-
-# The API
-
-## Request URL:
-
-```
-curl -X GET -d '{"user":"gmail_username","pass":"gmail_password","id":"transaction_id"}' "http://yourdomain.com/paytome.php?user=[gmail_username]&pass=[gmail_password]&id=[transaction_id]&key=[api_key]"
-```
-
-
-## Request Body:
-
-```
-{
-"user":"gmail_username",
-"pass":"gmail_password",
-"id":"transaction_id"
-}
-```
-
-
-To get the status of an transaction id, send a GET request to http://yourdomain.com/paytmportal.php.
-
-The response will be a JSON object with a key called droplet. This will be set to a JSON object that contains the transaction id details:
-
-## Response Body:
-
-```
-{
-"status":"valid",
-"id":"TD71625FG72",
-"amount":"1000",
-"date":"Mon, 23 Mar 2015 22:24:22 +0530 (IST)"
-}
-```
-
-
-status - Transaction id is valid or invalid
-id - The transaction id.
-amount - The transaction amount.
-date - Date and time of transact
-
-## NOTE :
-Do not delete any emails from paytm from your gmail account.
-
-## Features that can be added as per your convinience.
-
-1. Storing the transaction id in your database to prevent multiple usage of a single transaction id. 
+1. mysql dump has should be imported first
+2. then the script should be edited with databse and gmail credentials
+3. gmail account should be set to allow access to less secure apps through this link : https://myaccount.google.com/lesssecureapps
