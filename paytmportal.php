@@ -1,117 +1,159 @@
 <?php
 
-$username = $_POST[user]; // or set your username here : $username = "USERNAME";
-$password = $_POST[pass]; // or set your password here : $password = "PASSWORD";
-$api = "YOUR-SECRET-API"; // set your api key here
+/**
+ * paytmpay.php
+ *
+ * Author : Rishav Anand
+ * Description : Paytm payment verification and participant registration script
+ *
+ */
 
-if(isset($_POST[key]) && $_POST[key]==$api){
-  
-$transid = $_POST[id];
-
-// Connect to gmail
-
-$imapPath = '{imap.gmail.com:993/imap/ssl}INBOX';
-
-function get_string_between($string, $start, $end)
-  {
+//function to get string between two strings
+function get_string_between($string, $start, $end){
   $string = " " . $string;
   $ini = strpos($string, $start);
   if ($ini == 0) return "";
   $ini+= strlen($start);
   $len = strpos($string, $end, $ini) - $ini;
   return substr($string, $ini, $len);
-  }
-
-// try to connect
-
-$inbox = imap_open($imapPath, $username, $password) or die('Cannot connect to Gmail: ' . imap_last_error());
-/* ALL - return all messages matching the rest of the criteria
-ANSWERED - match messages with the \\ANSWERED flag set
-BCC "string" - match messages with "string" in the Bcc: field
-BEFORE "date" - match messages with Date: before "date"
-BODY "string" - match messages with "string" in the body of the message
-CC "string" - match messages with "string" in the Cc: field
-DELETED - match deleted messages
-FLAGGED - match messages with the \\FLAGGED (sometimes referred to as Important or Urgent) flag set
-FROM "string" - match messages with "string" in the From: field
-KEYWORD "string" - match messages with "string" as a keyword
-NEW - match new messages
-OLD - match old messages
-ON "date" - match messages with Date: matching "date"
-RECENT - match messages with the \\RECENT flag set
-SEEN - match messages that have been read (the \\SEEN flag is set)
-SINCE "date" - match messages with Date: after "date"
-SUBJECT "string" - match messages with "string" in the Subject:
-TEXT "string" - match messages with text "string"
-TO "string" - match messages with "string" in the To:
-UNANSWERED - match messages that have not been answered
-UNDELETED - match messages that are not deleted
-UNFLAGGED - match messages that are not flagged
-UNKEYWORD "string" - match messages that do not have the keyword "string"
-UNSEEN - match messages which have not been read yet*/
-
-// search and get unseen emails, function will return email ids
-
-$emails = imap_search($inbox, 'SUBJECT "You have received"');
-$output = '';
-
-foreach($emails as $mail)
-  {
-  $message = imap_fetchbody($inbox, $mail, 1.1);
-  $headerInfo = imap_headerinfo($inbox, $mail);
-  $output.= $headerInfo->subject . '<br/>';
-  $output.= $headerInfo->toaddress . '<br/>';
-  $output.= $headerInfo->date . '<br/>';
-  $output.= $headerInfo->fromaddress . '<br/>';
-  $output.= $headerInfo->reply_toaddress . '<br/>';
-
-  // --------------------------------------------------
-
-  $fullstring = $message;
-  $parsed_amount = get_string_between($fullstring, "sent you Rs. ", "to your Paytm wallet");
-  $parsed_1 = get_string_between($fullstring, "your transaction id is ", "You can use the ");
-  $parsed_2 = str_replace(" .</p>", '', $parsed_1);
-  $parsed_3 = str_replace("<p>", '', $parsed_2);
-  $parsed_id = preg_replace('/\s+/', '', $parsed_3);
-
-  // --------------------------------------------------
-
-  $emailStructure = imap_fetchstructure($inbox, $mail);
-  if (!isset($emailStructure->parts))
-    {
-    $output.= imap_body($inbox, $mail, FT_PEEK);
-    }
-
-  $arr[] = array(
-    $parsed_amount,
-    $parsed_id,
-    $headerInfo->date
-  );
-  }
-
-imap_expunge($inbox);
-imap_close($inbox);
-
-foreach($arr as $value)
-  {
-  if ($value[1] == $transid)
-    {
-    $arr_result = array(
-      status => "valid",
-      id => $value[1],
-      amount => $value[0],
-      date => $value[2]
-    );
-    echo json_encode($arr_result);
-    }
-  }
-
-if (!isset($arr_result))
-  {
-  $notfound = array(
-    status => "invalid",
-  );
-  echo json_encode($notfound);
-  }
 }
+  
+
+if(isset($_POST['tid']) && isset($_POST['reg']) && isset($_POST['sname'])){
+
+  $decided_fee = '50';// decided registration fees - put here
+
+  $transid = $_POST['tid'];
+  $sent_amount = $_POST['amount'];
+
+  //gmail Credentials
+  $username = '';
+  $password = '';
+
+  //datebase credentials
+  $servername = "localhost";
+  $db_username = "";
+  $db_password = "";
+  $db_name = "";
+
+  //initializing connection to database
+  $conn = new mysqli($servername, $db_username, $db_password, $db_name);
+  if ($conn->connect_error) {
+      die("Connection failed: " . $conn->connect_error);
+  } 
+
+  //connect to gmail
+  $imapPath = '{imap.gmail.com:993/imap/ssl}INBOX';
+
+  //try to connect
+  $inbox = imap_open($imapPath, $username, $password) or die('Cannot connect to Gmail: ' . imap_last_error());
+
+  //search for emails with payment subject
+  $emails = imap_search($inbox, 'SUBJECT "You have received Rs."');
+
+  //for each found email extract the transaction id
+  foreach($emails as $mail){
+
+    $output = '';
+    $fullstring = imap_fetchbody($inbox, $mail, 1.1);
+    $headerInfo = imap_headerinfo($inbox, $mail);
+    $headerData = $headerInfo->subject;
+    $headerData = explode(' ', $headerData);
+    $amount = $headerData[3];
+    $output['mob_number'] = $headerData[6];
+    $headerData = $headerInfo->date;
+    $output['date'] = $headerData;
+    $headerData = str_replace("Rs.","",$amount);
+    $output['amount'] = $headerData;
+    $parsed_tid = get_string_between($fullstring, 'Transaction ID
+                                <span style=" font-weight:600; display:block;color: #252525;">', '</span>');
+    $output['tid'] = $parsed_tid;
+    $test_amount = round($output['amount']);
+
+    //for debugging purpose
+    //echo "<pre>";
+    //var_dump($output);
+    //echo "</pre>";
+    
+    if($output['tid'] == $transid && $test_amount == $decided_fee){
+      $sql = "INSERT INTO paytm (tid, date, amount, mob_number,name,reg)
+      VALUES ('".$output['tid']."', '".$output['date']."', '".$output['amount']."','".$output['mob_number']."','".$_POST['sname']."','".$_POST['reg']."')";
+      if ($conn->query($sql) === TRUE) {
+          $msg[0] = 'success';
+          $msg[] = 'You have been registered.';
+      } else {
+        if (strpos($conn->error, 'Duplicate') !== false) {
+            $msg[0] = 'error';
+            $msg[1] = 'Already registered.';
+        }
+        else{
+          $msg[0] = 'error';
+          $msg[1] = $conn->error;
+        }
+      }
+      $conn->close();
+    }
+    else{
+      $msg[0] = 'error';
+      $msg[1] = 'Invalid entry.';
+    }
+
+  }
+
+  //imap closing statements
+  imap_expunge($inbox);
+  imap_close($inbox);
+
+}
+
 ?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Mozilla Workshop Registration</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+  <h2>Registration form</h2>
+   <?php
+  if(isset($msg[0])){
+    if($msg[0] == "success"){
+      $status1 = "success";
+      $status2 = "Success";
+    }
+    if($msg[0] == "error"){
+      $status1 = "danger";
+      $status2 = "Error";
+    }
+    echo '<div class="alert alert-'.$status1.'">
+  <strong>'.$status2.'!</strong>  '.$msg[1].'
+</div>';
+  }
+  ?>
+  <form action="" method="POST">
+    <div class="form-group">
+      <label for="email">Name :</label>
+        <input type="text" name="sname" placeholder="Name" class="form-control" required>
+    </div>
+    <div class="form-group">
+      <label for="reg">Registration number :</label>
+        <input type="text" name="reg" placeholder="Registration number" class="form-control" required>
+    </div>
+    <div class="form-group">
+      <label for="tid">PayTM transaction ID :</label>
+        <input type="text" name="tid" placeholder="PayTM transcation ID" class="form-control" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Register</button>
+  </form>
+</div>
+
+</body>
+</html>
+
