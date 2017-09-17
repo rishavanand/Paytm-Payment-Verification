@@ -1,10 +1,10 @@
 # Paytm Payment Verification (PHP)
 
-This script allows user registration only only for people with valid PayTM Transaction ID. While registration the PayTM transaction ID and payment amount is matched so allow user registattion.
+This script allows user registration only for people with valid PayTM Transaction ID. While registration the PayTM transaction ID and payment amount is matched to allow user registration.
 
 ## How does it work ?
 
-When a transaction is made both the sender and the receiver receives an email which has the same transaction id. This script takes the transaction id from the participant and verifies it from the receiver's inbox. If the amount and transaction id matches the user's name and registration number gets registered in the database.
+When a transaction is made both the sender and the receiver receives an email which has the same transaction id. This script takes the transaction id from the participant and verifies it from the receiver's inbox. If the amount and transaction id matches the user's name and registration number(just another sample field) gets registered in the database.
 
 ## Information to be added by you in the script ?
 1. Gmail credentials
