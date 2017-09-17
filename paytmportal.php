@@ -1,7 +1,7 @@
 <?php
 
 /**
- * paytmpay.php
+ * paytmportal.php
  *
  * Author : Rishav Anand
  * Description : Paytm payment verification and participant registration script
