@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.5.1
--- http://www.phpmyadmin.net
+-- version 4.6.6deb5
+-- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Generation Time: Apr 17, 2017 at 11:19 PM
--- Server version: 10.1.19-MariaDB
--- PHP Version: 7.0.13
+-- Host: localhost:3306
+-- Generation Time: Mar 01, 2018 at 02:11 AM
+-- Server version: 5.7.21-0ubuntu0.17.10.1
+-- PHP Version: 7.1.11-0ubuntu0.17.10.1
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -17,7 +17,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `payments`
+-- Database: `paytm`
 --
 
 -- --------------------------------------------------------
@@ -29,8 +29,8 @@ SET time_zone = "+00:00";
 CREATE TABLE `paytm` (
   `name` varchar(50) NOT NULL,
   `reg` int(20) NOT NULL,
-  `tid` int(20) NOT NULL,
-  `date` varchar(20) NOT NULL,
+  `tid` varchar(20) NOT NULL,
+  `date` varchar(50) NOT NULL,
   `amount` float NOT NULL,
   `mob_number` varchar(10) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -44,10 +44,7 @@ CREATE TABLE `paytm` (
 --
 ALTER TABLE `paytm`
   ADD PRIMARY KEY (`tid`),
-  ADD UNIQUE KEY `tid` (`tid`),
-  ADD KEY `tid_2` (`tid`),
-  ADD KEY `tid_3` (`tid`),
-  ADD KEY `tid_4` (`tid`);
+  ADD UNIQUE KEY `tid` (`tid`)
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
