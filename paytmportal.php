@@ -60,12 +60,20 @@ if(isset($_POST['tid']) && isset($_POST['reg']) && isset($_POST['sname'])){
 
 	$output = array();
 	$fullstring = imap_fetchbody($inbox, $mail, 1);
-	$output['mob_number'] = get_string_between($fullstring, `<td align="left" style="padding-left:20px;font-family: 'Open Sans', sans-serif, arial;font-size: 16px;font-weight: 600;line-height: 23px;color: #222"><a href="#" style="text-decoration:none;font-family: 'Open Sans', sans-serif, arial;font-size: 16px;font-weight: 600;line-height: 23px;color: #222">`, `</a>`);
-	$output['tid'] = get_string_between($fullstring, 'Transaction ID : ', ' ');
+	
+	/* THIS PART CHANGES FREQUENTLY AS PAYTM UPDATES THEIR EMAIL FORMAT */
+
+	$output['mob_number'] = get_string_between($fullstring, 'Linked to', '<');
+	$output['mob_number'] = trim($output['mob_number']);
+	$output['tid'] = get_string_between($fullstring, 'Transaction Id: ', 'Your');
+	$output['tid'] = trim($output['tid']);
 	$head = imap_headerinfo($inbox, $mail);
 	$subject = $head->subject;
-	$output['amount'] = get_string_between($subject, '<font style="font-weight: bold;font-size: 31px">', '</font>');
+	$output['amount'] = get_string_between($subject, 'Rs.', ' ');
 	$output['date'] = $head->date;
+
+	/* ---------------------------------------------------------------- */
+
 	$test_amount = round($output['amount']);
 	
 	if($output['tid'] == $transid && $test_amount == $decided_fee){
